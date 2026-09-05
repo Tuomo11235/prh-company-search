@@ -10,7 +10,6 @@
 const HOUSING_COMPANY_PATTERNS = [
   /asunto[-\s]?osakeyhti/i,
   /\bas\.?\s?oy\b/i,
-  /\bas\s?oy\b/i,
   /bostadsaktiebolag/i,
   /\bbost\.?\s?ab\b/i,
 ];

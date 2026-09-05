@@ -10,6 +10,7 @@ const searchController = new SearchController();
 const savedSearchService = new SavedSearchService();
 
 let currentResults = [];
+let currentSizeProviderId = defaultSizeProviderId;
 let currentSort = { field: 'changeDate', direction: 'desc' };
 
 const els = {
@@ -106,7 +107,7 @@ function renderResults() {
     return;
   }
 
-  const sizeProvider = getSizeProvider(els.sizeProviderSelect.value);
+  const sizeProvider = getSizeProvider(currentSizeProviderId);
 
   for (const company of sorted) {
     const visiting = company.addresses.find((a) => a.type === 'visiting');
@@ -209,6 +210,7 @@ function renderSavedSearches() {
     });
     li.querySelector('.load-btn').addEventListener('click', () => {
       currentResults = item.resultsSnapshot ?? [];
+      currentSizeProviderId = item.criteria?.sizeProviderId ?? defaultSizeProviderId;
       renderResults();
       setStatus(`Näytetään tallennettu tulos "${item.name}".`);
     });
@@ -227,6 +229,7 @@ async function handleSearchSubmit(event) {
   setStatus('Haetaan...');
   try {
     currentResults = await searchController.runSearch(criteria, (msg) => setStatus(msg));
+    currentSizeProviderId = criteria.sizeProviderId;
     renderResults();
   } catch (err) {
     setStatus(err.message, true);
