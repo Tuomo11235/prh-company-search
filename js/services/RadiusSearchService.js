@@ -47,6 +47,13 @@ export class RadiusSearchService {
     onProgress(`Haetaan yrityksiä kunnasta "${center.municipality}"...`);
     const candidates = await provider.searchByMunicipality(center.municipality);
     const limited = candidates.slice(0, this.maxCandidates);
+    const truncated = candidates.length > limited.length;
+    if (truncated) {
+      onProgress(
+        `Huom: kunnasta löytyi ${candidates.length} yritystä, joista tarkistetaan vain ensimmäiset ${limited.length} `
+        + `(maxCandidates-raja) - osa säteen sisällä olevista yrityksistä saattaa puuttua tuloksista.`,
+      );
+    }
 
     // NOTE: each candidate needs its own geocoding lookup, and the geocoder
     // throttles requests (~1/second) to respect Nominatim's usage policy, so
@@ -66,6 +73,12 @@ export class RadiusSearchService {
         onProgress(`Tarkistetaan etäisyydet (${index + 1}/${limited.length} yritystä)...`);
       }
     }
+    // Attach truncation metadata to the result array so callers (e.g. the UI)
+    // can warn the user that the candidate set was capped, without changing
+    // the array's shape for consumers that only care about the companies.
+    inRadius.truncated = truncated;
+    inRadius.candidateCount = candidates.length;
+    inRadius.checkedCount = limited.length;
     return inRadius;
   }
 }

@@ -39,10 +39,15 @@ export class SearchController {
     const sizeProvider = getSizeProvider(criteria.sizeProviderId);
 
     let companies;
+    let truncationWarning = null;
     if (criteria.mode === 'radius') {
       if (!criteria.address) throw new Error('Anna osoite säteittäistä hakua varten.');
       const radiusKm = Math.min(10, Math.max(0, Number(criteria.radiusKm) || 0));
       companies = await this.radiusSearchService.search(dataProvider, criteria.address, radiusKm, onProgress);
+      if (companies.truncated) {
+        truncationWarning = `Huom: tarkistettiin vain ${companies.checkedCount}/${companies.candidateCount} `
+          + `kunnan yritystä (maxCandidates-raja) - osa säteen sisällä olevista yrityksistä voi puuttua.`;
+      }
     } else if (criteria.mode === 'postCode') {
       const postCodes = this._parsePostCodes(criteria.postCodes);
       if (!postCodes.length) throw new Error('Anna vähintään yksi postinumero.');
@@ -61,7 +66,7 @@ export class SearchController {
 
     companies = applySizeFilters(companies, criteria);
 
-    onProgress(`Valmis. ${companies.length} yritystä.`);
+    onProgress(`Valmis. ${companies.length} yritystä.${truncationWarning ? ' ' + truncationWarning : ''}`);
     return companies;
   }
 

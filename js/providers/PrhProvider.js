@@ -114,6 +114,11 @@ export class PrhProvider extends DataProvider {
       all.push(...companies.map((c) => this._mapCompany(c)));
       if (companies.length < expectedPageSize) break;
       page += 1;
+      if (page < maxPages) {
+        // Small courtesy delay between paginated requests so a search that
+        // spans many pages doesn't hammer the PRH API in a tight loop.
+        await new Promise((resolve) => setTimeout(resolve, 150));
+      }
     }
     return all;
   }
@@ -134,10 +139,34 @@ export class PrhProvider extends DataProvider {
     return [];
   }
 
+  /**
+   * Merges duplicate companies (same business id can appear more than once
+   * when searching across several postal codes, since a company may have
+   * both a postal and a visiting address in different post codes) instead
+   * of silently overwriting one occurrence with another - addresses from
+   * every occurrence are combined, and `latestChangeDate` recomputed.
+   * @private
+   */
   _dedupe(companies) {
     const byId = new Map();
     for (const company of companies) {
-      byId.set(company.businessId || company.id, company);
+      const key = company.businessId || company.id;
+      const existing = byId.get(key);
+      if (!existing) {
+        byId.set(key, company);
+        continue;
+      }
+      const mergedAddressesByRaw = new Map();
+      for (const address of [...existing.addresses, ...company.addresses]) {
+        mergedAddressesByRaw.set(`${address.type}|${address.raw}`, address);
+      }
+      const addresses = [...mergedAddressesByRaw.values()];
+      const latestChangeDate = addresses
+        .map((a) => a.changeDate)
+        .filter(Boolean)
+        .sort()
+        .at(-1) ?? null;
+      byId.set(key, { ...existing, addresses, latestChangeDate });
     }
     return [...byId.values()];
   }
