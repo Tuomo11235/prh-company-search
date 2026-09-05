@@ -1,0 +1,154 @@
+:root {
+  --color-bg: #f4f6f8;
+  --color-panel: #ffffff;
+  --color-border: #dbe1e8;
+  --color-primary: #205081;
+  --color-primary-dark: #163a5f;
+  --color-text: #1f2937;
+  --color-muted: #6b7280;
+  --color-danger: #b91c1c;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.app-header {
+  background: var(--color-primary);
+  color: white;
+  padding: 1.25rem 2rem;
+}
+
+.app-header h1 { margin: 0 0 0.25rem; font-size: 1.4rem; }
+.app-header .subtitle { margin: 0; opacity: 0.9; font-size: 0.9rem; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 340px 260px 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 1000px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+.panel {
+  background: var(--color-panel);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.panel h2 { margin-top: 0; font-size: 1.05rem; }
+
+fieldset {
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+  padding: 0.6rem 0.75rem;
+}
+
+legend { font-weight: 600; font-size: 0.85rem; color: var(--color-primary-dark); padding: 0 0.3rem; }
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-text);
+}
+
+input[type="text"], input[type="number"], select {
+  display: block;
+  width: 100%;
+  margin-top: 0.2rem;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.radio-row { display: flex; gap: 1rem; margin-bottom: 0.5rem; }
+.radio-row label { display: flex; align-items: center; gap: 0.3rem; margin-bottom: 0; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+
+.hint { font-size: 0.78rem; color: var(--color-muted); margin: 0.2rem 0 0.5rem; }
+
+.actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+
+button {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+button:hover { background: var(--color-primary-dark); }
+button.secondary { background: var(--color-muted); }
+
+#save-search-button { background: var(--color-muted); }
+
+#status-message { font-size: 0.82rem; color: var(--color-muted); min-height: 1.2em; }
+#status-message.error { color: var(--color-danger); }
+
+.saved-list { list-style: none; padding: 0; margin: 0; }
+.saved-list li {
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.82rem;
+}
+.saved-list .saved-name { font-weight: 600; display: block; margin-bottom: 0.3rem; }
+.saved-list .saved-meta { color: var(--color-muted); display: block; margin-bottom: 0.4rem; }
+.saved-list .saved-actions { display: flex; gap: 0.4rem; }
+.saved-list button { padding: 0.25rem 0.5rem; font-size: 0.78rem; }
+.saved-list .delete-btn { background: var(--color-danger); }
+
+.results-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+.toolbar-actions { display: flex; align-items: center; gap: 1rem; }
+.size-import-label { font-size: 0.75rem; color: var(--color-muted); }
+.size-import-label input { display: inline-block; width: auto; margin-top: 0.2rem; }
+
+.table-wrapper { overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+thead th {
+  text-align: left;
+  background: #eef2f6;
+  padding: 0.5rem;
+  border-bottom: 2px solid var(--color-border);
+  cursor: default;
+  white-space: nowrap;
+}
+thead th[data-sort] { cursor: pointer; user-select: none; }
+thead th[data-sort]:hover { background: #e3e9f0; }
+tbody td { padding: 0.45rem 0.5rem; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+tbody tr:hover { background: #fafbfc; }
+.empty-row td { text-align: center; color: var(--color-muted); padding: 2rem; }
+
+.size-inputs { display: flex; gap: 0.3rem; }
+.size-inputs input { width: 90px; padding: 0.2rem 0.3rem; font-size: 0.78rem; }
+
+.app-footer {
+  padding: 1rem 2rem 2rem;
+  font-size: 0.78rem;
+  color: var(--color-muted);
+}
+.app-footer a { color: var(--color-primary); }
