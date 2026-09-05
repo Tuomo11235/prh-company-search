@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Yritysten osoitteenmuutoshaku</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<header class="app-header">
+  <h1>Yritysten osoitteenmuutoshaku</h1>
+  <p class="subtitle">Hae yritysten osoitteenmuutostiedot PRH:n avoimesta datasta (laajennettavissa muihin tietolähteisiin)</p>
+</header>
+
+<main class="layout">
+  <section class="panel search-panel" aria-label="Hakuehdot">
+    <h2>Hakuehdot</h2>
+    <form id="search-form">
+      <fieldset>
+        <legend>Tietolähde</legend>
+        <label>Yritysrekisteri
+          <select id="data-provider" name="dataProviderId"></select>
+        </label>
+        <label>Kokotiedon lähde
+          <select id="size-provider" name="sizeProviderId"></select>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Hakualue</legend>
+        <div class="radio-row">
+          <label><input type="radio" name="mode" value="radius" checked /> Säde osoitteesta</label>
+          <label><input type="radio" name="mode" value="postCode" /> Postinumero(t)</label>
+        </div>
+
+        <div id="radius-fields" class="mode-fields">
+          <label>Osoite
+            <input type="text" id="address" name="address" placeholder="esim. Mannerheimintie 1, Helsinki" />
+          </label>
+          <label>Säde (km): <output id="radius-value">5</output>
+            <input type="range" id="radius" name="radiusKm" min="0" max="10" step="1" value="5" />
+          </label>
+        </div>
+
+        <div id="postcode-fields" class="mode-fields" hidden>
+          <label>Postinumerot (pilkulla/välilyönnillä eroteltuna)
+            <input type="text" id="postCodes" name="postCodes" placeholder="esim. 00100, 00120" />
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Rajaa pois</legend>
+        <label><input type="checkbox" id="excludeCareOf" name="excludeCareOf" checked /> c/o-osoitteet</label>
+        <label><input type="checkbox" id="excludeHousingCompanies" name="excludeHousingCompanies" checked /> Asunto-osakeyhtiöt</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Yrityksen koko</legend>
+        <p class="hint">PRH:n avoin data ei sisällä liikevaihto-/henkilöstötietoja. Syötä tai tuo kokotiedot alta löytyvällä Kokotiedot-toiminnolla, niin voit suodattaa niiden mukaan.</p>
+        <div class="two-col">
+          <label>Liikevaihto min (EUR)<input type="number" id="minRevenue" name="minRevenue" min="0" /></label>
+          <label>Liikevaihto max (EUR)<input type="number" id="maxRevenue" name="maxRevenue" min="0" /></label>
+        </div>
+        <div class="two-col">
+          <label>Henkilöstö min<input type="number" id="minEmployees" name="minEmployees" min="0" /></label>
+          <label>Henkilöstö max<input type="number" id="maxEmployees" name="maxEmployees" min="0" /></label>
+        </div>
+      </fieldset>
+
+      <div class="actions">
+        <button type="submit" id="search-button">Hae</button>
+        <button type="button" id="save-search-button">Tallenna haku</button>
+      </div>
+      <p id="status-message" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+
+  <section class="panel saved-panel" aria-label="Tallennetut haut">
+    <h2>Tallennetut haut</h2>
+    <ul id="saved-searches-list" class="saved-list"></ul>
+  </section>
+
+  <section class="panel results-panel" aria-label="Tulokset">
+    <div class="results-toolbar">
+      <h2>Tulokset (<span id="result-count">0</span>)</h2>
+      <div class="toolbar-actions">
+        <label class="size-import-label">
+          Tuo kokotiedot (CSV: y-tunnus,liikevaihto,henkilostomaara)
+          <input type="file" id="size-import-input" accept=".csv" />
+        </label>
+        <button type="button" id="export-csv-button">Vie CSV</button>
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table id="results-table">
+        <thead>
+          <tr>
+            <th data-sort="name">Nimi ▾</th>
+            <th>Y-tunnus</th>
+            <th>Yritysmuoto</th>
+            <th>Käyntiosoite</th>
+            <th>Postiosoite</th>
+            <th data-sort="changeDate">Muutospäivä ▾</th>
+            <th>Aikaa muutoksesta</th>
+            <th data-sort="size">Koko ▾</th>
+            <th>Etäisyys (km)</th>
+          </tr>
+        </thead>
+        <tbody id="results-body">
+          <tr class="empty-row"><td colspan="9">Ei tuloksia vielä. Tee haku vasemmalta.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer class="app-footer">
+  <p>
+    Tietolähde: <a href="https://avoindata.prh.fi/fi" target="_blank" rel="noopener">PRH Avoin data</a>.
+    Osoitteen muutospäivä = osoitetietueen rekisteröintipäivä (paras julkisesti saatavilla oleva vastine).
+    Liikevaihto/henkilöstötiedot eivät sisälly PRH:n avoimeen dataan; ks. sovelluksen dokumentaatio (README).
+  </p>
+</footer>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
