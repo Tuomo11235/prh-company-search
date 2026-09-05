@@ -2,6 +2,7 @@ import { getDataProvider, getSizeProvider } from '../providers/ProviderRegistry.
 import { RadiusSearchService } from './RadiusSearchService.js';
 import { applyExclusionFilters } from './ExclusionFilters.js';
 import { applySizeFilters } from './SizeFilterService.js';
+import { MIN_RADIUS_KM, MAX_RADIUS_KM } from '../constants.js';
 
 /**
  * Orchestrates a full search: fetch from the selected data provider (by
@@ -42,7 +43,7 @@ export class SearchController {
     let truncationWarning = null;
     if (criteria.mode === 'radius') {
       if (!criteria.address) throw new Error('Anna osoite säteittäistä hakua varten.');
-      const radiusKm = Math.min(10, Math.max(0, Number(criteria.radiusKm) || 0));
+      const radiusKm = Math.min(MAX_RADIUS_KM, Math.max(MIN_RADIUS_KM, Number(criteria.radiusKm) || 0));
       companies = await this.radiusSearchService.search(dataProvider, criteria.address, radiusKm, onProgress);
       if (companies.truncated) {
         truncationWarning = `Huom: tarkistettiin vain ${companies.checkedCount}/${companies.candidateCount} `

@@ -150,6 +150,9 @@ export class PrhProvider extends DataProvider {
   _dedupe(companies) {
     const byId = new Map();
     for (const company of companies) {
+      // `id` is always unique (crypto.randomUUID() when businessId is
+      // missing - see createCompany in Company.js), so companies without a
+      // business id are never accidentally merged together.
       const key = company.businessId || company.id;
       const existing = byId.get(key);
       if (!existing) {
@@ -187,7 +190,7 @@ export class PrhProvider extends DataProvider {
       .at(-1) ?? null;
 
     return createCompany({
-      id: businessId,
+      id: businessId || undefined,
       businessId,
       name,
       companyForm,

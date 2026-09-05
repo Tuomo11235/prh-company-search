@@ -45,7 +45,7 @@
  */
 export function createCompany(data) {
   return {
-    id: data.id ?? data.businessId ?? crypto.randomUUID(),
+    id: data.id || data.businessId || crypto.randomUUID(),
     businessId: data.businessId ?? '',
     name: data.name ?? '',
     companyForm: data.companyForm ?? '',

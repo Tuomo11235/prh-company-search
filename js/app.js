@@ -4,6 +4,7 @@ import { SavedSearchService } from './services/SavedSearchService.js';
 import { sortCompanies } from './services/SortService.js';
 import { formatElapsedYearsMonths, formatDate } from './services/DateUtils.js';
 import { exportCompaniesToCsv } from './services/CsvExportService.js';
+import { MIN_RADIUS_KM, MAX_RADIUS_KM } from './constants.js';
 
 const searchController = new SearchController();
 const savedSearchService = new SavedSearchService();
@@ -136,18 +137,24 @@ function renderResults() {
     row.querySelector(`#${revenueId}`).addEventListener('change', (e) => {
       const value = parseNullableNumberInput(e.target, company.size?.revenueEur ?? null);
       if (value === undefined) return;
-      if (typeof sizeProvider.setSize === 'function') {
-        sizeProvider.setSize(company.businessId, { revenueEur: value });
-        company.size = { ...company.size, revenueEur: value, source: sizeProvider.id };
+      if (typeof sizeProvider.setSize !== 'function') {
+        setStatus('Valittu kokotietolähde ei tue muokkausta - arvoa ei tallennettu.', true);
+        e.target.value = company.size?.revenueEur ?? '';
+        return;
       }
+      sizeProvider.setSize(company.businessId, { revenueEur: value });
+      company.size = { ...company.size, revenueEur: value, source: sizeProvider.id };
     });
     row.querySelector(`#${employeesId}`).addEventListener('change', (e) => {
       const value = parseNullableNumberInput(e.target, company.size?.employees ?? null);
       if (value === undefined) return;
-      if (typeof sizeProvider.setSize === 'function') {
-        sizeProvider.setSize(company.businessId, { employees: value });
-        company.size = { ...company.size, employees: value, source: sizeProvider.id };
+      if (typeof sizeProvider.setSize !== 'function') {
+        setStatus('Valittu kokotietolähde ei tue muokkausta - arvoa ei tallennettu.', true);
+        e.target.value = company.size?.employees ?? '';
+        return;
       }
+      sizeProvider.setSize(company.businessId, { employees: value });
+      company.size = { ...company.size, employees: value, source: sizeProvider.id };
     });
   }
 }
@@ -257,6 +264,8 @@ function handleExport() {
   exportCompaniesToCsv(currentResults);
 }
 
+const BUSINESS_ID_PATTERN = /^\d{6,8}-\d$/;
+
 function parseCsvText(text) {
   return text
     .split(/\r?\n/)
@@ -268,7 +277,11 @@ function parseCsvText(text) {
       businessId: businessId.trim(),
       revenueEur: revenueEur ? Number(revenueEur) : undefined,
       employees: employees ? Number(employees) : undefined,
-    }));
+    }))
+    // Skip a header row (e.g. "y-tunnus,liikevaihto,henkilostomaara") or any
+    // other row whose first column isn't a valid Finnish business id
+    // (NNNNNNN-N), instead of importing it as bogus data.
+    .filter((row) => BUSINESS_ID_PATTERN.test(row.businessId));
 }
 
 async function handleSizeImport(event) {
@@ -288,6 +301,8 @@ async function handleSizeImport(event) {
 
 function init() {
   populateProviderSelects();
+  els.radius.min = String(MIN_RADIUS_KM);
+  els.radius.max = String(MAX_RADIUS_KM);
   setMode('radius');
   renderSavedSearches();
   renderResults();
