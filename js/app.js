@@ -134,7 +134,7 @@ function renderResults() {
     els.resultsBody.appendChild(row);
 
     row.querySelector(`#${revenueId}`).addEventListener('change', (e) => {
-      const value = parseNullableNumberInput(e.target);
+      const value = parseNullableNumberInput(e.target, company.size?.revenueEur ?? null);
       if (value === undefined) return;
       if (typeof sizeProvider.setSize === 'function') {
         sizeProvider.setSize(company.businessId, { revenueEur: value });
@@ -142,7 +142,7 @@ function renderResults() {
       }
     });
     row.querySelector(`#${employeesId}`).addEventListener('change', (e) => {
-      const value = parseNullableNumberInput(e.target);
+      const value = parseNullableNumberInput(e.target, company.size?.employees ?? null);
       if (value === undefined) return;
       if (typeof sizeProvider.setSize === 'function') {
         sizeProvider.setSize(company.businessId, { employees: value });
@@ -162,16 +162,17 @@ function escapeHtml(value) {
  * Parses a number input's value, returning:
  *   - null if the field was cleared (explicit "unset")
  *   - a finite number if valid
- *   - undefined if the input is invalid (not a parseable number), in which
- *     case the caller should ignore the change and leave prior data intact.
- * Invalid input also gets a visible error and the input is reverted.
+ *   - undefined if the input is invalid (not a parseable number). In that
+ *     case the field is reset back to `previousValue` and a visible error
+ *     is shown, so the caller can simply ignore the change.
  */
-function parseNullableNumberInput(inputEl) {
+function parseNullableNumberInput(inputEl, previousValue = null) {
   const raw = inputEl.value.trim();
   if (raw === '') return null;
   const value = Number(raw);
   if (!Number.isFinite(value)) {
     setStatus(`Virheellinen luku: "${raw}". Arvoa ei tallennettu.`, true);
+    inputEl.value = previousValue ?? '';
     return undefined;
   }
   return value;
