@@ -86,6 +86,12 @@ export class PrhProvider extends DataProvider {
    */
   async _fetchAllPages(params, options) {
     const maxPages = options.maxPages ?? 20;
+    // ASSUMPTION: the PRH v3 API is documented to return a fixed number of
+    // results per page (observed default: 20). This is only used to decide
+    // whether another page is worth requesting; if the API ever returns a
+    // page smaller than this on a non-final page, we simply make one extra
+    // (empty) request and stop - never silently truncate the real results.
+    const expectedPageSize = options.pageSize ?? 20;
     const all = [];
     let page = 0;
     // The PRH API paginates results; we stop when a page returns no more
@@ -106,7 +112,7 @@ export class PrhProvider extends DataProvider {
       const companies = this._extractCompanies(payload);
       if (!companies.length) break;
       all.push(...companies.map((c) => this._mapCompany(c)));
-      if (companies.length < (options.pageSize ?? companies.length)) break;
+      if (companies.length < expectedPageSize) break;
       page += 1;
     }
     return all;

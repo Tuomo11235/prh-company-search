@@ -94,7 +94,9 @@ mahdollisella tavalla ja dokumentoitu sekä koodissa (`PrhProvider.js`,
   jokaisen ehdokasyrityksen osoitteen ja suodattaa lopuksi todellisen
   etäisyyden (Haversine-kaava) mukaan ≤ valittu säde. Tämä voi jättää
   huomiotta kuntarajan juuri toisella puolella olevia yrityksiä, ja on hidas
-  suurissa kunnissa (rajattu `maxCandidates`-arvolla). Jos tulevaisuudessa
+  suurissa kunnissa (rajattu `maxCandidates`-arvolla, oletus 60 yritystä -
+  Nominatimin käyttöehtojen kunnioittaminen tarkoittaa ~1 geokoodauspyyntö/s,
+  joten haku voi kestää jopa minuutin verran). Jos tulevaisuudessa
   jokin tietolähde tarjoaa natiivin säde-/geohaun, se voidaan toteuttaa
   suoraan kyseisen providerin sisällä ilman, että muuta koodia tarvitsee
   muuttaa.

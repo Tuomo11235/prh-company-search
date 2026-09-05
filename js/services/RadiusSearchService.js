@@ -21,7 +21,10 @@ import { GeocodingService, haversineDistanceKm } from './GeocodingService.js';
 export class RadiusSearchService {
   constructor(config = {}) {
     this.geocoder = config.geocoder ?? new GeocodingService();
-    this.maxCandidates = config.maxCandidates ?? 150;
+    // Kept modest by default because each candidate needs a throttled (~1/s)
+    // geocoding call - 60 candidates already means ~1 minute of waiting.
+    // Callers can raise this for smaller municipalities / faster geocoders.
+    this.maxCandidates = config.maxCandidates ?? 60;
   }
 
   /**
@@ -45,14 +48,22 @@ export class RadiusSearchService {
     const candidates = await provider.searchByMunicipality(center.municipality);
     const limited = candidates.slice(0, this.maxCandidates);
 
-    onProgress(`Tarkistetaan etäisyydet (${limited.length} yritystä)...`);
+    // NOTE: each candidate needs its own geocoding lookup, and the geocoder
+    // throttles requests (~1/second) to respect Nominatim's usage policy, so
+    // this step can take a while for municipalities with many companies.
+    // We report progress periodically so the UI doesn't look stuck.
+    onProgress(`Tarkistetaan etäisyydet (0/${limited.length} yritystä, tämä voi kestää hetken)...`);
     const inRadius = [];
-    for (const company of limited) {
+    for (const [index, company] of limited.entries()) {
       const point = await this.geocoder.geocodeCompanyAddress(company);
-      if (!point) continue;
-      const distanceKm = haversineDistanceKm(center, point);
-      if (distanceKm <= radiusKm) {
-        inRadius.push({ ...company, distanceKm });
+      if (point) {
+        const distanceKm = haversineDistanceKm(center, point);
+        if (distanceKm <= radiusKm) {
+          inRadius.push({ ...company, distanceKm });
+        }
+      }
+      if ((index + 1) % 5 === 0 || index === limited.length - 1) {
+        onProgress(`Tarkistetaan etäisyydet (${index + 1}/${limited.length} yritystä)...`);
       }
     }
     return inRadius;

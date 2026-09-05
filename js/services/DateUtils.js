@@ -10,6 +10,12 @@ export function formatElapsedYearsMonths(isoDate, now = new Date()) {
   const date = new Date(isoDate);
   if (Number.isNaN(date.getTime())) return '-';
 
+  if (date.getTime() > now.getTime()) {
+    // The date is in the future (e.g. a scheduled/upcoming change) - report
+    // it explicitly instead of silently showing an elapsed time of zero.
+    return 'tulevaisuudessa';
+  }
+
   let years = now.getFullYear() - date.getFullYear();
   let months = now.getMonth() - date.getMonth();
   if (now.getDate() < date.getDate()) {
@@ -18,9 +24,6 @@ export function formatElapsedYearsMonths(isoDate, now = new Date()) {
   if (months < 0) {
     years -= 1;
     months += 12;
-  }
-  if (years < 0 || (years === 0 && months < 0)) {
-    return '0kk';
   }
   const parts = [];
   if (years > 0) parts.push(`${years}v`);
